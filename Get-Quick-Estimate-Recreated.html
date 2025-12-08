@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get a Quick Estimate</title>
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --accent-color: #e82374;
+            --alternate-color: #1384e2;
+            --dark-color: #252525;
+            --light-color: #ffffff;
+            --soft-rounded: 40px;
+            --soft-medium-rounded: 60px;
+
+            /* Shape mask SVG for curved corners */
+            --shape-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M30,30 L30,0 C30,16.57 16.57,30 0,30 L30,30 Z' fill='%23000'/%3E%3C/svg%3E");
+            --shape-mask-02: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M0,30 L30,30 C13.43,30 0,16.57 0,0 L0,30 Z' fill='%23000'/%3E%3C/svg%3E");
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        /* Heading font */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 500;
+        }
+
+        /* Main Section */
+        .estimate-section {
+            max-width: 1800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Background Row with Image */
+        .background-row {
+            background-image: url('Get-Quick-Estimate_files/footer_background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: var(--soft-rounded);
+            position: relative;
+            overflow: visible;
+        }
+
+        /* Coverage Images */
+        .coverage-top-left {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .coverage-bottom-right {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        /* Floating Images */
+        .floating-image {
+            position: absolute;
+            z-index: 5;
+            transition: transform 0.3s ease-out;
+        }
+
+        .floating-bubble-1 {
+            top: 65%;
+            left: 4em;
+        }
+
+        .floating-bubble-2 {
+            top: 40%;
+            left: 20em;
+        }
+
+        .floating-bubble-3 {
+            right: 6em;
+            top: 37%;
+        }
+
+        /* Form Card */
+        .form-card {
+            background-color: var(--light-color);
+            border-radius: var(--soft-medium-rounded);
+            padding: 60px;
+            position: relative;
+        }
+
+        /* Form Elements */
+        .form-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.875rem 0;
+            border: none;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: var(--dark-color);
+            background-color: transparent;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0 center;
+            background-size: 1.25rem;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-bottom-color: var(--alternate-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        /* Slider */
+        .slider-container {
+            padding: 1rem 0 0.5rem 0;
+            position: relative;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #e5e7eb;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 4px;
+            height: 16px;
+            border-radius: 2px;
+            background: #9ca3af;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 4px;
+            height: 16px;
+            border-radius: 2px;
+            background: #9ca3af;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -0.5rem;
+            transform: translateX(-50%);
+            background: var(--alternate-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e7eb;
+            transition: 0.3s;
+            border-radius: 32px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.toggle-slider {
+            background-color: var(--alternate-color);
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        /* Total Section */
+        .total-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            background-color: var(--accent-color);
+            border-radius: 50px;
+        }
+
+        .total-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--light-color);
+        }
+
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--light-color);
+        }
+
+        .total-currency {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--light-color);
+            margin-right: 0.25rem;
+        }
+
+        /* Extended link */
+        .extended-link {
+            color: var(--alternate-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .extended-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .form-card {
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .form-card {
+                padding: 20px;
+            }
+
+            .floating-image {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Estimate Section -->
+    <section class="estimate-section py-8 px-4">
+        <div class="background-row">
+
+            <!-- Coverage Image - Top Left -->
+            <div class="coverage-top-left">
+                <img src="Get-Quick-Estimate_files/top_left_horizontal.png" alt="" loading="lazy">
+            </div>
+
+            <!-- Coverage Image - Bottom Right -->
+            <div class="coverage-bottom-right">
+                <img src="Get-Quick-Estimate_files/bottom_right_horizontal.png" alt="" loading="lazy">
+            </div>
+
+            <!-- Main Grid Layout -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-0 items-end">
+
+                <!-- Left Column - Cleaning Supplies Image -->
+                <div class="hidden xl:flex justify-end items-end relative">
+                    <img src="Get-Quick-Estimate_files/image_08_home_01.png" alt="Cleaning supplies"
+                        class="max-w-[280px]" loading="lazy">
+
+                    <!-- Floating Bubble 1 -->
+                    <div class="floating-image floating-bubble-1 hidden 2xl:block">
+                        <img src="Get-Quick-Estimate_files/floating_image_02.png" alt="" width="160" height="160">
+                    </div>
+
+                    <!-- Floating Bubble 2 -->
+                    <div class="floating-image floating-bubble-2 hidden 2xl:block">
+                        <img src="Get-Quick-Estimate_files/floating_image_03.png" alt="" width="90" height="90">
+                    </div>
+                </div>
+
+                <!-- Center Column - Form Card -->
+                <div class="py-16 px-4 xl:px-0">
+                    <div class="form-card max-w-lg mx-auto">
+
+                        <!-- Title -->
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-medium text-gray-900 mb-2">Get a Quick Estimate</h3>
+                            <p class="text-gray-500 text-sm">
+                                *For a detailed quote, use <a href="#" class="extended-link">extended version</a>
+                            </p>
+                        </div>
+
+                        <!-- Type of Cleaning -->
+                        <div class="form-group">
+                            <label class="form-label">Type of Cleaning</label>
+                            <select class="form-select" id="cleaningType">
+                                <option value="0">Select...</option>
+                                <option value="500">Home Cleaning</option>
+                                <option value="650">Move in/out Cleaning</option>
+                                <option value="800">Office Cleaning</option>
+                            </select>
+                        </div>
+
+                        <!-- Complexity -->
+                        <div class="form-group">
+                            <label class="form-label">Complexity</label>
+                            <select class="form-select" id="complexity">
+                                <option value="0">Select...</option>
+                                <option value="200" selected>Deep cleaning</option>
+                                <option value="150">Small Maintenance</option>
+                                <option value="220">Window Cleaning</option>
+                            </select>
+                        </div>
+
+                        <!-- Square Footage Slider -->
+                        <div class="form-group">
+                            <label class="form-label">Square Footage</label>
+                            <div class="slider-container">
+                                <div class="slider-wrapper">
+                                    <span class="slider-value" id="sliderValue" style="left: 20%;">40</span>
+                                    <input type="range" class="slider" id="squareFootage" min="0" max="200" step="10"
+                                        value="40">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cleaning Supplies Toggle -->
+                        <div class="form-group">
+                            <label class="form-label">Cleaning Supplies</label>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="suppliesToggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="total-section">
+                            <span class="total-label">Total</span>
+                            <div>
+                                <span class="total-currency">$</span>
+                                <span class="total-amount" id="totalAmount">240.00</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Column - Cleaning Lady Image -->
+                <div class="hidden xl:flex justify-start items-end relative">
+                    <img src="Get-Quick-Estimate_files/image_06_home_01.png" alt="Professional cleaner"
+                        class="max-w-[369px]" loading="lazy">
+
+                    <!-- Floating Bubble 3 -->
+                    <div class="floating-image floating-bubble-3 hidden 2xl:block">
+                        <img src="Get-Quick-Estimate_files/floating_image_02.png" alt="" width="160" height="160">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- JavaScript for Calculator -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cleaningType = document.getElementById('cleaningType');
+            const complexity = document.getElementById('complexity');
+            const squareFootage = document.getElementById('squareFootage');
+            const suppliesToggle = document.getElementById('suppliesToggle');
+            const sliderValue = document.getElementById('sliderValue');
+            const totalAmount = document.getElementById('totalAmount');
+
+            function calculateTotal() {
+                let total = 0;
+
+                // Add cleaning type value
+                total += parseInt(cleaningType.value) || 0;
+
+                // Add complexity value
+                total += parseInt(complexity.value) || 0;
+
+                // Add square footage (price per unit)
+                total += parseInt(squareFootage.value) || 0;
+
+                // Add supplies if toggle is on
+                if (suppliesToggle.checked) {
+                    total += 100;
+                }
+
+                totalAmount.textContent = total.toFixed(2);
+            }
+
+            // Update slider value display and position
+            function updateSliderPosition() {
+                const min = parseInt(squareFootage.min);
+                const max = parseInt(squareFootage.max);
+                const val = parseInt(squareFootage.value);
+                const percentage = ((val - min) / (max - min)) * 100;
+                sliderValue.textContent = val;
+                sliderValue.style.left = percentage + '%';
+            }
+
+            squareFootage.addEventListener('input', function () {
+                updateSliderPosition();
+                calculateTotal();
+            });
+
+            // Initialize slider position
+            updateSliderPosition();
+
+            // Add event listeners
+            cleaningType.addEventListener('change', calculateTotal);
+            complexity.addEventListener('change', calculateTotal);
+            suppliesToggle.addEventListener('change', calculateTotal);
+
+            // Parallax effect for floating images
+            const floatingImages = document.querySelectorAll('.floating-image');
+            window.addEventListener('scroll', function () {
+                const scrollY = window.scrollY;
+                floatingImages.forEach((img, index) => {
+                    const speed = 0.3 + (index * 0.1);
+                    const yPos = scrollY * speed * 0.1;
+                    img.style.transform = `translateY(${yPos}px)`;
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

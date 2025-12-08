@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Section - About Us</title>
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --accent-color: #e82374;
+            --alternate-color: #1384e2;
+            --dark-color: #252525;
+            --light-color: #ffffff;
+            --row-soft-medium-rounded: 80px;
+
+            /* Shape mask SVG for curved corners */
+            --shape-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M30,30 L30,0 C30,16.57 16.57,30 0,30 L30,30 Z' fill='%23000'/%3E%3C/svg%3E");
+            --shape-mask-02: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M0,30 L30,30 C13.43,30 0,16.57 0,0 L0,30 Z' fill='%23000'/%3E%3C/svg%3E");
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        /* Heading font */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background-color: rgba(19, 132, 226, 0.1);
+            border-top-left-radius: var(--row-soft-medium-rounded);
+            border-top-right-radius: var(--row-soft-medium-rounded);
+            max-width: 1800px;
+            margin: 0 auto;
+            padding-top: 3em;
+            position: relative;
+            overflow: visible;
+        }
+
+        /* Floating Images */
+        .floating-image {
+            position: absolute;
+            z-index: 1;
+            transition: transform 0.3s ease-out;
+        }
+
+        .floating-image-1 {
+            top: 12%;
+            right: 10em;
+        }
+
+        .floating-image-2 {
+            bottom: 17%;
+            left: 2%;
+        }
+
+        .floating-image-3 {
+            top: 32%;
+            left: 3%;
+        }
+
+        /* Large About Us Heading */
+        .hero-heading {
+            font-size: 21vw;
+            line-height: 0.9;
+            color: var(--alternate-color);
+            text-align: center;
+            font-weight: 600;
+            text-transform: lowercase;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Hero Image Container */
+        .hero-image-container {
+            display: flex;
+            justify-content: center;
+            margin-top: -12.8em;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-image {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Testimonial Card with Curved Corner */
+        .testimonial-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0;
+        }
+
+        .testimonial-card {
+            max-width: 310px;
+            padding: 1.5em 2em;
+            border-top-left-radius: 40px;
+            position: relative;
+            background-color: var(--dark-color);
+            color: var(--light-color);
+        }
+
+        /* Curved corner effect using ::before */
+        .testimonial-card::before {
+            content: "";
+            width: 30px;
+            height: 30px;
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: -30px;
+            -webkit-mask-image: var(--shape-mask-02);
+            mask-image: var(--shape-mask-02);
+            background-color: var(--dark-color);
+            transform: rotate(-90deg);
+            transition: all 300ms ease;
+        }
+
+        /* Curved corner effect using ::after */
+        .testimonial-card::after {
+            content: "";
+            width: 30px;
+            height: 30px;
+            display: block;
+            position: absolute;
+            top: -30px;
+            right: 0;
+            -webkit-mask-image: var(--shape-mask);
+            mask-image: var(--shape-mask);
+            background-color: var(--dark-color);
+
+            transition: all 300ms ease;
+        }
+
+        /* Testimonial Content */
+        .testimonial-inner {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .testimonial-image img {
+            max-width: 121px;
+            height: auto;
+        }
+
+        .testimonial-quote {
+            position: relative;
+        }
+
+        .testimonial-quote::before {
+            content: '"';
+            font-size: 3em;
+            font-family: Georgia, serif;
+            color: var(--accent-color);
+            opacity: 0.5;
+            position: absolute;
+            top: -1em;
+            left: -0.3em;
+        }
+
+        .testimonial-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .testimonial-text strong {
+            display: block;
+            font-weight: 500;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .hero-section {
+                padding-top: 4em;
+            }
+
+            .hero-image-container {
+                margin-top: -100px;
+            }
+
+            .floating-image {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-heading {
+                font-size: 18vw;
+            }
+
+            .hero-image-container {
+                margin-top: -100px;
+            }
+
+            .testimonial-wrapper {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-heading {
+                font-size: 16vw;
+            }
+
+            .hero-image-container {
+                margin-top: -40px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="relative w-full px-4">
+
+            <!-- Floating Decorative Images -->
+            <div class="floating-image floating-image-1 hidden lg:block">
+                <img src="Hero_files/floating_image_02.png" alt="Decorative bubble" width="160" height="160"
+                    loading="eager">
+            </div>
+
+            <div class="floating-image floating-image-2 hidden lg:block">
+                <img src="Hero_files/floating_image_03.png" alt="Decorative bubble" width="90" height="90"
+                    loading="eager">
+            </div>
+
+            <div class="floating-image floating-image-3 hidden lg:block">
+                <img src="Hero_files/floating_image_about.png" alt="Decorative cleaning element" width="134"
+                    height="134" loading="eager">
+            </div>
+
+            <!-- Main Content Column -->
+            <div class="flex flex-col items-center text-center">
+
+                <!-- Large "about us" Heading -->
+                <header class="w-full">
+                    <h1 class="hero-heading">about us</h1>
+                </header>
+
+                <!-- Spacer -->
+                <div class="h-8 md:h-12 lg:h-16"></div>
+
+                <!-- Hero Image with negative margin -->
+                <div class="hero-image-container w-full">
+                    <img src="Hero_files/image_01_about.png" alt="Professional cleaning team" class="hero-image"
+                        width="1011" height="590" loading="eager">
+                </div>
+            </div>
+
+            <!-- Testimonial Card Row -->
+            <div class="testimonial-wrapper hidden md:flex">
+                <div class="testimonial-card">
+                    <div class="testimonial-inner">
+                        <div class="testimonial-image">
+                            <img src="Hero_files/credentials_home_01.png" alt="Client credentials" width="121"
+                                height="48" loading="eager">
+                        </div>
+                        <div class="testimonial-text">
+                            <span>Trusted by<br><strong>200+ clients</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- JavaScript for Parallax Effect on Floating Images -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const floatingImages = document.querySelectorAll('.floating-image');
+
+            window.addEventListener('scroll', function () {
+                const scrollY = window.scrollY;
+
+                floatingImages.forEach((img, index) => {
+                    const speed = 0.5 + (index * 0.2);
+                    const yPos = scrollY * speed * 0.1;
+                    img.style.transform = `translateY(${yPos}px)`;
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>
