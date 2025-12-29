@@ -44,7 +44,7 @@ function createReviewsStore() {
 
                 const records = await pb.collection("reviews").getFullList({
                     filter: `user = "${authState.user.id}"`,
-                    sort: "-created",
+                    sort: "-rating", // changed from -created
                 });
 
                 update((state) => ({

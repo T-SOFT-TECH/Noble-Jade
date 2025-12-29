@@ -62,7 +62,7 @@ function createReferralsStore() {
 
                 const records = await pb.collection("referrals").getFullList({
                     filter: `referrer = "${authState.user.id}"`,
-                    sort: "-created",
+                    // sort removed - created field not available
                 });
 
                 const referrals = records as unknown as Referral[];

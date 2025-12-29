@@ -2,39 +2,45 @@
     /**
      * ServicesExtras Component
      * Displays the "Customize Your Clean With Extras" section
-     * 6 cards showing additional cleaning services with images and prices
+     * 6 cards showing additional cleaning services with icons and prices
      */
 
     const extras = [
         {
             title: "Laundry Wash & Fold",
             price: "From $17",
-            image: "/images/service_01_home_01.png",
+            icon: "🧺",
+            color: "#4f46e5",
         },
         {
             title: "Inside Fridge Clean",
             price: "From $17",
-            image: "/images/service_02_home_01.png",
+            icon: "❄️",
+            color: "#0891b2",
         },
         {
             title: "Inside Oven Clean",
             price: "From $17",
-            image: "/images/service_03_home_01.png",
+            icon: "🔥",
+            color: "#ea580c",
         },
         {
             title: "Carpet Cleaning",
             price: "From $17",
-            image: "/images/service_04.png",
+            icon: "🧹",
+            color: "#7c3aed",
         },
         {
             title: "Tile Cleaning",
             price: "From $17",
-            image: "/images/service_05.png",
+            icon: "✨",
+            color: "#0d9488",
         },
         {
             title: "Furniture Vacuuming",
             price: "From $17",
-            image: "/images/service_06.png",
+            icon: "🛋️",
+            color: "#be185d",
         },
     ];
 </script>
@@ -58,12 +64,11 @@
         <div class="extras-grid">
             {#each extras as extra}
                 <a href="/services" class="extra-card">
-                    <div class="extra-image">
-                        <img
-                            src={extra.image}
-                            alt={extra.title}
-                            loading="lazy"
-                        />
+                    <div
+                        class="extra-icon"
+                        style="background-color: {extra.color}15; color: {extra.color}"
+                    >
+                        <span class="icon-emoji">{extra.icon}</span>
                     </div>
                     <div class="extra-content">
                         <h4>{extra.title}</h4>
@@ -191,26 +196,18 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    .extra-image {
+    .extra-icon {
         width: 80px;
         height: 80px;
         flex-shrink: 0;
         border-radius: var(--border-radius-md, 0.75rem);
-        background-color: var(--light-blue, #ecf4fd);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0.5rem;
     }
 
-    :global(.dark) .extra-image {
-        background-color: rgba(19, 132, 226, 0.15);
-    }
-
-    .extra-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
+    .icon-emoji {
+        font-size: 2.5rem;
     }
 
     .extra-content {

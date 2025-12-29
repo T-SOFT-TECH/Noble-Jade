@@ -55,9 +55,17 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
         // Get this month's bookings for revenue calculation
         const now = new Date();
-        const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const monthBookings = await pb.collection('bookings').getFullList({
-            filter: `created >= "${firstOfMonth}" && (status = "completed" || status = "paid")`,
+        const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Fetch completed/paid bookings and filter by date in code
+        const allPaidBookings = await pb.collection('bookings').getFullList({
+            filter: `status = "completed" || status = "paid"`,
+        });
+
+        // Filter by this month's date in JavaScript
+        const monthBookings = allPaidBookings.filter(b => {
+            const bookingDate = new Date(b.created || b.scheduledDate);
+            return bookingDate >= firstOfMonth;
         });
         const revenue = monthBookings.reduce((sum, b) => sum + (b.total || 0), 0);
 
@@ -267,7 +275,7 @@ export async function getAllUsers(
         }
 
         const result = await pb.collection('users').getList<AdminUser>(page, perPage, {
-            sort: '-created',
+            sort: 'name', // changed from -created
             filter: filterParts.length > 0 ? filterParts.join(' && ') : undefined,
         });
 

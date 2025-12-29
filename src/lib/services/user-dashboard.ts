@@ -137,7 +137,7 @@ export async function getUserReviews(userId: string): Promise<UserReview[]> {
     try {
         const result = await pb.collection("reviews").getFullList({
             filter: `user = "${userId}"`,
-            sort: "-created",
+            // sort removed - created field not available
             expand: "booking",
         });
 
@@ -156,7 +156,7 @@ export async function getPendingReviewBookings(userId: string): Promise<UserBook
         // Get completed bookings
         const completedBookings = await pb.collection("bookings").getFullList({
             filter: `user = "${userId}" && status = "completed"`,
-            sort: "-created",
+            // sort removed - created field not available
         });
 
         // Get user's reviews to find which bookings already have reviews

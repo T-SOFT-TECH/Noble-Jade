@@ -31,7 +31,7 @@
             testimonials = await pb
                 .collection("testimonials")
                 .getFullList<Testimonial>({
-                    sort: "-created",
+                    // No sort - created field not available
                 });
         } catch (error) {
             console.error("[Admin Testimonials] Error loading:", error);

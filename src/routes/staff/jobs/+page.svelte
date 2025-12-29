@@ -43,7 +43,6 @@
 
             const records = await pb.collection("bookings").getFullList({
                 filter: filter || undefined,
-                sort: "-created",
             });
 
             jobs = records.map((r: any) => ({

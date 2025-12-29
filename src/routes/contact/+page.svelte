@@ -85,7 +85,9 @@
                         defaultCompanyInfo.businessHours.sunday,
                 },
                 locations:
-                    locations.length > 0 ? locations : defaultCompanyInfo.locations,
+                    locations.length > 0
+                        ? locations
+                        : defaultCompanyInfo.locations,
             };
 
             primaryLocation =
@@ -120,9 +122,52 @@
     let bedrooms = $state("1 Bedroom");
     let bathrooms = $state("1 Bathroom");
     let message = $state("");
+    let isSubmitting = $state(false);
+    let submitSuccess = $state(false);
+    let submitError = $state("");
 
-    function handleSubmit() {
-        alert("Message sent! We'll get back to you soon.");
+    async function handleSubmit() {
+        if (isSubmitting) return;
+
+        // Validate required fields
+        if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+            submitError = "Please fill in all required fields.";
+            return;
+        }
+
+        isSubmitting = true;
+        submitError = "";
+
+        try {
+            await pb.collection("contact_messages").create({
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: email.trim(),
+                phone: phone.trim(),
+                serviceType:
+                    serviceType !== "Type of service" ? serviceType : "",
+                bedrooms,
+                bathrooms,
+                message: message.trim(),
+                status: "new",
+            });
+
+            submitSuccess = true;
+            // Reset form
+            firstName = "";
+            lastName = "";
+            email = "";
+            phone = "";
+            serviceType = "Type of service";
+            bedrooms = "1 Bedroom";
+            bathrooms = "1 Bathroom";
+            message = "";
+        } catch (error: any) {
+            console.error("[Contact] Error submitting message:", error);
+            submitError = "Failed to send message. Please try again.";
+        } finally {
+            isSubmitting = false;
+        }
     }
 
     const serviceTypes = [
@@ -325,21 +370,73 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-btn">
-                        <span>Send Message</span>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
+                    {#if submitError}
+                        <div class="form-error">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                            {submitError}
+                        </div>
+                    {/if}
+
+                    {#if submitSuccess}
+                        <div class="form-success">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+                                ></path>
+                                <polyline points="22 4 12 14.01 9 11.01"
+                                ></polyline>
+                            </svg>
+                            <span
+                                >Message sent successfully! We'll get back to
+                                you soon.</span
+                            >
+                        </div>
+                    {:else}
+                        <button
+                            type="submit"
+                            class="submit-btn"
+                            disabled={isSubmitting}
                         >
-                            <path d="M22 2L11 13"></path>
-                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
-                        </svg>
-                    </button>
+                            {#if isSubmitting}
+                                <span class="spinner"></span>
+                                <span>Sending...</span>
+                            {:else}
+                                <span>Send Message</span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path d="M22 2L11 13"></path>
+                                    <path d="M22 2L15 22L11 13L2 9L22 2Z"
+                                    ></path>
+                                </svg>
+                            {/if}
+                        </button>
+                    {/if}
                 </form>
 
                 <p class="required-note">
@@ -1035,6 +1132,56 @@
 
     .submit-btn:hover svg {
         transform: translateX(3px) translateY(-3px);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .submit-btn .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .form-error {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 0.5rem;
+        color: #dc2626;
+        font-size: 0.9rem;
+    }
+
+    .form-success {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border: 1px solid #6ee7b7;
+        border-radius: 1rem;
+        color: #047857;
+        font-weight: 500;
+    }
+
+    .form-success svg {
+        flex-shrink: 0;
+        color: #059669;
     }
 
     /* Required Note */

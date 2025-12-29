@@ -72,7 +72,7 @@ function createBookingStore() {
             try {
                 const records = await pb.collection('bookings').getFullList({
                     filter: `user = "${userId}"`,
-                    sort: '-created',
+                    sort: '-scheduledDate', // changed from -created
                     expand: 'assignedStaff'
                 });
                 update(s => ({ ...s, bookings: records as Booking[], isLoading: false }));
@@ -86,7 +86,7 @@ function createBookingStore() {
             update(s => ({ ...s, isLoading: true }));
             try {
                 const records = await pb.collection('bookings').getFullList({
-                    sort: '-created',
+                    sort: '-scheduledDate', // changed from -created
                     expand: 'user,assignedStaff'
                 });
                 update(s => ({ ...s, bookings: records as Booking[], isLoading: false }));
@@ -249,7 +249,7 @@ export const jobProgress = {
     async getProgress(bookingId: string) {
         return await pb.collection('job_progress').getFullList({
             filter: `booking = "${bookingId}"`,
-            sort: 'created',
+            sort: 'stageNumber', // changed from created
             expand: 'staff'
         });
     }

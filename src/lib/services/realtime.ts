@@ -151,7 +151,7 @@ export function createRealtimeListStore<T>(
         try {
             const records = await pb.collection(collection).getFullList({
                 filter: options?.filter,
-                sort: options?.sort || '-created',
+                sort: options?.sort, // removed default -created
                 expand: options?.expand
             });
             set(records as T[]);
