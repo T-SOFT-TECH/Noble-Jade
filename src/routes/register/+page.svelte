@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { auth } from "$lib/stores/auth";
+    import { auth, getDashboardUrl } from "$lib/stores/auth";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import PageHero from "$lib/components/shared/PageHero.svelte";
@@ -15,8 +15,8 @@
     onMount(() => {
         auth.init();
         const unsubscribe = auth.subscribe((state) => {
-            if (state.isAuthenticated) {
-                goto("/dashboard");
+            if (state.isAuthenticated && state.user) {
+                goto(getDashboardUrl(state.user.role));
             }
         });
         return unsubscribe;
@@ -48,6 +48,7 @@
         });
 
         if (result.success) {
+            // New users are customers, redirect to customer dashboard
             goto("/dashboard");
         } else {
             error = result.error || "Registration failed";

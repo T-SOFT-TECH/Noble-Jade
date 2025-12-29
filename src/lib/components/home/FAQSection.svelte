@@ -1,29 +1,60 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+    import { getFaqs, type FAQ } from "$lib/services/content";
+    import { pb } from "$lib/pocketbase";
+    import { defaultCompanyInfo } from "$lib/config/company";
+
     // FAQ accordion state - track which item is open (only one at a time)
     let openIndex = $state(0); // First item open by default
+    let faqItems = $state<FAQ[]>([]);
+    let isLoading = $state(true);
+    let phone = $state(defaultCompanyInfo.phone);
+    let email = $state(defaultCompanyInfo.email);
 
-    const faqItems = [
+    // Default FAQs as fallback
+    const defaultFaqs: FAQ[] = [
         {
+            id: "1",
             question: "What services do you offer?",
-            answer: "We offer a comprehensive range of cleaning services including regular home cleaning, deep cleaning, move-in/move-out cleaning, office cleaning, carpet and upholstery cleaning, window cleaning, and specialized services like post-construction cleanup. All our services can be customized to fit your specific needs and schedule.",
+            answer: "We offer a comprehensive range of cleaning services including regular home cleaning, deep cleaning, move-in/move-out cleaning, office cleaning, carpet and upholstery cleaning, window cleaning, and specialized services like post-construction cleanup.",
+            category: "General",
+            sortOrder: 1,
+            isActive: true,
         },
         {
-            question: "What services you don't offer?",
-            answer: "We focus exclusively on cleaning services. We do not offer pest control, landscaping, plumbing, electrical work, or handyman services. However, we're happy to recommend trusted partners in your area for these services if needed.",
-        },
-        {
-            question: "How long will it take to clean my house?",
-            answer: "Cleaning time varies based on your home's size and condition. Generally, a standard cleaning for a 2-3 bedroom home takes 2-3 hours. Deep cleaning or larger properties may take 4-6 hours. We'll provide an accurate time estimate after assessing your specific needs during booking.",
-        },
-        {
-            question: "Do I need to provide cleaning supplies?",
-            answer: "No, our professional team brings all necessary cleaning supplies and equipment. We use eco-friendly, high-quality products that are safe for your family and pets. If you have specific product preferences or allergies, just let us know and we'll accommodate your needs.",
-        },
-        {
+            id: "2",
             question: "How do I book a cleaning service?",
-            answer: "Booking is easy! Simply click the 'Book Now' button, fill in your details (name, address, phone number, home size, and any special requirements), and we'll confirm your appointment within the same business day. You can also call us directly or use our live chat for immediate assistance.",
+            answer: "Booking is easy! Simply click the 'Book Now' button, fill in your details and we'll confirm your appointment within the same business day. You can also call us directly or use our live chat.",
+            category: "General",
+            sortOrder: 2,
+            isActive: true,
         },
     ];
+
+    onMount(async () => {
+        try {
+            // Fetch FAQs
+            const faqs = await getFaqs();
+            faqItems = faqs.length > 0 ? faqs : defaultFaqs;
+
+            // Fetch contact settings
+            const settings = await pb.collection("settings").getFullList();
+            for (const s of settings) {
+                if (s.key === "contact_phone") phone = s.value;
+                if (s.key === "contact_email") email = s.value;
+            }
+            console.log(
+                "[FAQSection] Loaded",
+                faqItems.length,
+                "FAQs from database",
+            );
+        } catch (error) {
+            console.error("[FAQSection] Error loading FAQs:", error);
+            faqItems = defaultFaqs;
+        } finally {
+            isLoading = false;
+        }
+    });
 
     function toggleItem(index: number) {
         openIndex = openIndex === index ? -1 : index;
@@ -40,9 +71,10 @@
                 <h2 class="faq-title">Questions? Look here.</h2>
                 <p class="faq-subtitle">
                     Can't find an answer? Call us at <a
-                        href="tel:8442429464"
-                        class="faq-phone">844 242 9464</a
-                    > or email info@njjs.com
+                        href="tel:{phone.replace(/[\s\-\(\)]/g, '')}"
+                        class="faq-phone">{phone}</a
+                    >
+                    or email {email}
                 </p>
             </div>
             <div class="faq-header-right">

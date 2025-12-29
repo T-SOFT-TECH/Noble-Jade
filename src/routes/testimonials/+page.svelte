@@ -1,30 +1,77 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import PageHero from "$lib/components/shared/PageHero.svelte";
     import TestimonialsCarousel from "$lib/components/home/TestimonialsCarousel.svelte";
+    import {
+        getFeaturedTestimonials,
+        getTestimonialImageUrl,
+        type Testimonial,
+    } from "$lib/services/content";
+    import { pb } from "$lib/pocketbase";
+    import { defaultCompanyInfo } from "$lib/config/company";
 
-    const featuredTestimonials = [
+    let featuredTestimonials = $state<Testimonial[]>([]);
+    let phone = $state(defaultCompanyInfo.phone);
+    let isLoading = $state(true);
+
+    // Default testimonials as fallback
+    const defaultTestimonials: Testimonial[] = [
         {
-            quote: "Qleen transformed our office. Clean, fresh, and organized every time. Their team is professional, punctual, and a pleasure to work with.",
-            name: "Daniel R",
-            role: "Office Manager, Brooklyn",
-            image: "/wp-content/uploads/sites/3/2025/07/testimonial_06.png",
-            rating: 5,
-        },
-        {
-            quote: "Qleen did such an awesome job! They were even mindful of using natural cleaning products for my kiddos room, which I was so appreciative of.",
-            name: "Annie Bennedict",
-            role: "Client",
-            image: "/wp-content/uploads/sites/3/2019/02/testimonials_02.jpg",
-            rating: 5,
-        },
-        {
-            quote: "Great response time, staff was on time and got the job done pretty quickly. House looked great when they finished. If anyone needs a clean home contact Qleen.",
+            id: "1",
+            quote: "Great response time, staff was on time and got the job done pretty quickly. House looked great when they finished.",
             name: "Rebecca Hawland",
             role: "Client",
-            image: "/wp-content/uploads/sites/3/2019/02/testimonials_01.jpg",
+            image: "",
             rating: 5,
+            isFeatured: true,
+            isActive: true,
+            sortOrder: 1,
+        },
+        {
+            id: "2",
+            quote: "Exceptional service from start to finish. The team was professional, thorough, and left my home sparkling.",
+            name: "Andy Toy",
+            role: "Client",
+            image: "",
+            rating: 5,
+            isFeatured: true,
+            isActive: true,
+            sortOrder: 2,
         },
     ];
+
+    onMount(async () => {
+        try {
+            // Fetch featured testimonials
+            const testimonials = await getFeaturedTestimonials();
+            featuredTestimonials =
+                testimonials.length > 0 ? testimonials : defaultTestimonials;
+
+            // Fetch phone from settings
+            const settings = await pb.collection("settings").getFullList();
+            for (const s of settings) {
+                if (s.key === "contact_phone") phone = s.value;
+            }
+            console.log(
+                "[Testimonials] Loaded",
+                featuredTestimonials.length,
+                "featured testimonials",
+            );
+        } catch (error) {
+            console.error("[Testimonials] Error loading testimonials:", error);
+            featuredTestimonials = defaultTestimonials;
+        } finally {
+            isLoading = false;
+        }
+    });
+
+    // Get image URL - use database URL or fallback
+    function getImageUrl(testimonial: Testimonial, index: number): string {
+        if (testimonial.image) {
+            return getTestimonialImageUrl(testimonial);
+        }
+        return `/images/testimonials_0${(index % 4) + 1}.jpg`;
+    }
 
     const surveyStats = [
         { label: "Punctuality of cleaners", value: 96 },
@@ -98,7 +145,10 @@
                 <h2>Words from Our Satisfied Customers</h2>
                 <div class="header-actions">
                     <a href="/contact" class="btn-primary">Book Online</a>
-                    <a href="tel:8442429464" class="phone-link">
+                    <a
+                        href="tel:{phone.replace(/[\s\-\(\)]/g, '')}"
+                        class="phone-link"
+                    >
                         <span class="phone-icon">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +164,7 @@
                                 />
                             </svg>
                         </span>
-                        (844) 242-9464
+                        {phone}
                     </a>
                 </div>
             </div>
@@ -147,7 +197,7 @@
                         </div>
                         <div class="author">
                             <img
-                                src={testimonial.image}
+                                src={getImageUrl(testimonial, index)}
                                 alt={testimonial.name}
                                 class="author-image"
                             />

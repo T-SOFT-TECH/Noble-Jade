@@ -1,16 +1,115 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import PageHero from "$lib/components/shared/PageHero.svelte";
+    import { pb } from "$lib/pocketbase";
     import {
-        companyInfo,
-        getPrimaryLocation,
+        defaultCompanyInfo,
         formatPhoneForLink,
+        type CompanyInfo,
+        type Location,
     } from "$lib/config/company";
 
-    // Get primary and additional locations
-    const primaryLocation = getPrimaryLocation();
-    const additionalLocations = companyInfo.locations.filter(
-        (loc) => !loc.isPrimary,
-    );
+    // Company data - will be loaded from database
+    let company = $state<CompanyInfo>(defaultCompanyInfo);
+    let primaryLocation = $state<Location>(defaultCompanyInfo.locations[0]);
+    let additionalLocations = $state<Location[]>([]);
+    let isLoading = $state(true);
+
+    // Load company data from PocketBase
+    onMount(async () => {
+        try {
+            // Fetch settings
+            const settingsRecords = await pb
+                .collection("settings")
+                .getFullList();
+            const settings: Record<string, any> = {};
+            for (const record of settingsRecords) {
+                settings[record.key] = record.value;
+            }
+
+            // Fetch locations
+            const locationsRecords = await pb
+                .collection("locations")
+                .getFullList({
+                    filter: "isActive = true",
+                    sort: "sortOrder",
+                });
+
+            const locations: Location[] = locationsRecords.map((loc) => ({
+                id: loc.id,
+                name: loc.name,
+                city: loc.city,
+                province: loc.province,
+                address: loc.address,
+                postalCode: loc.postalCode,
+                country: loc.country || "Canada",
+                phone: loc.phone,
+                email: loc.email,
+                isPrimary: loc.isPrimary,
+                sortOrder: loc.sortOrder,
+                isActive: loc.isActive,
+            }));
+
+            company = {
+                name: settings.company_name || defaultCompanyInfo.name,
+                shortName:
+                    settings.company_short_name || defaultCompanyInfo.shortName,
+                tagline: settings.company_tagline || defaultCompanyInfo.tagline,
+                email: settings.contact_email || defaultCompanyInfo.email,
+                phone: settings.contact_phone || defaultCompanyInfo.phone,
+                tollFree: settings.toll_free || defaultCompanyInfo.tollFree,
+                website: settings.website_url || defaultCompanyInfo.website,
+                socialLinks: {
+                    facebook:
+                        settings.social_facebook ||
+                        defaultCompanyInfo.socialLinks.facebook,
+                    instagram:
+                        settings.social_instagram ||
+                        defaultCompanyInfo.socialLinks.instagram,
+                    twitter:
+                        settings.social_twitter ||
+                        defaultCompanyInfo.socialLinks.twitter,
+                    linkedin:
+                        settings.social_linkedin ||
+                        defaultCompanyInfo.socialLinks.linkedin,
+                },
+                businessHours: {
+                    weekdays:
+                        settings.hours_weekdays ||
+                        defaultCompanyInfo.businessHours.weekdays,
+                    saturday:
+                        settings.hours_saturday ||
+                        defaultCompanyInfo.businessHours.saturday,
+                    sunday:
+                        settings.hours_sunday ||
+                        defaultCompanyInfo.businessHours.sunday,
+                },
+                locations:
+                    locations.length > 0 ? locations : defaultCompanyInfo.locations,
+            };
+
+            primaryLocation =
+                company.locations.find((loc) => loc.isPrimary) ||
+                company.locations[0];
+            additionalLocations = company.locations.filter(
+                (loc) => !loc.isPrimary,
+            );
+
+            console.log(
+                "[Contact] Loaded company data from database:",
+                company.phone,
+            );
+        } catch (error) {
+            console.error("[Contact] Error loading company data:", error);
+            // Keep defaults on error
+            primaryLocation = defaultCompanyInfo.locations[0];
+            additionalLocations = defaultCompanyInfo.locations.filter(
+                (loc) => !loc.isPrimary,
+            );
+        } finally {
+            isLoading = false;
+        }
+    });
 
     // Form state
     let firstName = $state("");
@@ -283,18 +382,18 @@
                     <div class="hours-info">
                         <p>
                             Monday to Friday:<br /><strong
-                                >{companyInfo.businessHours.weekdays}</strong
+                                >{company.businessHours.weekdays}</strong
                             >
                         </p>
                         <p>
                             Saturday:<br /><strong
-                                >{companyInfo.businessHours.saturday}</strong
+                                >{company.businessHours.saturday}</strong
                             >
                         </p>
                         <div class="divider"></div>
                         <p class="muted">
                             Sunday:<br /><strong
-                                >{companyInfo.businessHours.sunday}</strong
+                                >{company.businessHours.sunday}</strong
                             >
                         </p>
                     </div>
@@ -320,7 +419,7 @@
                     <h4>Customer Service</h4>
                     <p>Call or text us anytime during business hours</p>
                     <a
-                        href="tel:{formatPhoneForLink(companyInfo.phone)}"
+                        href="tel:{formatPhoneForLink(company.phone)}"
                         class="phone-link"
                     >
                         <span class="phone-icon">
@@ -338,7 +437,7 @@
                                 />
                             </svg>
                         </span>
-                        {companyInfo.phone}
+                        {company.phone}
                     </a>
                 </div>
 
@@ -360,7 +459,7 @@
                             </svg>
                         </div>
                         <h5>Contact us via e-mail or social media</h5>
-                        <a href="mailto:{companyInfo.email}" class="email-link">
+                        <a href="mailto:{company.email}" class="email-link">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="16"
@@ -375,11 +474,11 @@
                                 />
                                 <polyline points="22,6 12,13 2,6" />
                             </svg>
-                            {companyInfo.email}
+                            {company.email}
                         </a>
                         <div class="social-links">
                             <a
-                                href={companyInfo.socialLinks.facebook}
+                                href={company.socialLinks.facebook}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Facebook"
@@ -397,7 +496,7 @@
                                 </svg>
                             </a>
                             <a
-                                href={companyInfo.socialLinks.instagram}
+                                href={company.socialLinks.instagram}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Instagram"
@@ -431,7 +530,7 @@
                                 </svg>
                             </a>
                             <a
-                                href={companyInfo.socialLinks.twitter}
+                                href={company.socialLinks.twitter}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Twitter"
@@ -449,7 +548,7 @@
                                 </svg>
                             </a>
                             <a
-                                href={companyInfo.socialLinks.linkedin}
+                                href={company.socialLinks.linkedin}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="LinkedIn"

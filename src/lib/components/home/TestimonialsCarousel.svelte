@@ -1,37 +1,69 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import {
+        getTestimonials,
+        getTestimonialImageUrl,
+        type Testimonial,
+    } from "$lib/services/content";
 
-    // Testimonials data
-    const testimonials = [
+    // Testimonials data - will be loaded from database
+    let testimonials = $state<Testimonial[]>([]);
+    let isLoading = $state(true);
+
+    // Default testimonials as fallback
+    const defaultTestimonials: Testimonial[] = [
         {
-            quote: "Great response time, staff was on time and got the job done pretty quickly. House looked great when they finished. If anyone needs a clean home contact them.",
+            id: "1",
+            quote: "Great response time, staff was on time and got the job done pretty quickly. House looked great when they finished.",
             name: "Rebecca Hawland",
             role: "Client",
-            image: "/images/testimonials_01.jpg",
+            image: "",
             rating: 5,
+            isFeatured: true,
+            isActive: true,
+            sortOrder: 1,
         },
         {
-            quote: "Qleen did such an awesome job! They were even mindful of using natural cleaning products for my kiddos room, which I was so appreciative of.",
-            name: "Annie Bennedict",
-            role: "Client",
-            image: "/images/testimonials_02.jpg",
-            rating: 5,
-        },
-        {
-            quote: "Exceptional service from start to finish. The team was professional, thorough, and left my home sparkling. Highly recommend to anyone looking for quality cleaning!",
+            id: "2",
+            quote: "Exceptional service from start to finish. The team was professional, thorough, and left my home sparkling.",
             name: "Andy Toy",
             role: "Client",
-            image: "/images/testimonials_03.jpg",
+            image: "",
             rating: 5,
-        },
-        {
-            quote: "I've tried many cleaning services over the years, but this one truly stands out. Reliable, affordable, and outstanding results every single time.",
-            name: "Pete Goldner",
-            role: "Client",
-            image: "/images/testimonials_04.jpg",
-            rating: 5,
+            isFeatured: true,
+            isActive: true,
+            sortOrder: 2,
         },
     ];
+
+    onMount(async () => {
+        try {
+            const data = await getTestimonials();
+            testimonials = data.length > 0 ? data : defaultTestimonials;
+            console.log(
+                "[TestimonialsCarousel] Loaded",
+                testimonials.length,
+                "testimonials from database",
+            );
+        } catch (error) {
+            console.error(
+                "[TestimonialsCarousel] Error loading testimonials:",
+                error,
+            );
+            testimonials = defaultTestimonials;
+        } finally {
+            isLoading = false;
+        }
+    });
+
+    // Get image URL - use database URL or fallback
+    function getImageUrl(testimonial: Testimonial, index: number): string {
+        if (testimonial.image) {
+            return getTestimonialImageUrl(testimonial);
+        }
+        // Fallback to local images
+        return `/images/testimonials_0${(index % 4) + 1}.jpg`;
+    }
 
     let carouselRef: HTMLDivElement;
     let currentIndex = $state(0);
@@ -174,7 +206,7 @@
                     <!-- Author -->
                     <div class="testimonial-author">
                         <img
-                            src={testimonial.image}
+                            src={getImageUrl(testimonial, index)}
                             alt={testimonial.name}
                             class="author-image"
                             draggable="false"

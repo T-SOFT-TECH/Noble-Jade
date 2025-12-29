@@ -8,8 +8,36 @@
      * - Additional Info (dropdowns)
      * - Total and Contact Form
      */
+    import { onMount } from "svelte";
+    import { goto } from "$app/navigation";
+    import { cart } from "$lib/stores/cart";
+    import { getCalculatorSettingsMap } from "$lib/services/admin";
 
     let currentStep = $state(1); // 1 = Calculator, 2 = Contact Form
+    let isPricingLoaded = $state(false);
+
+    // Pricing configuration (loaded from PocketBase)
+    let pricing = $state<Record<string, number>>({
+        // Default fallback values
+        base_standard: 50,
+        base_deep: 80,
+        base_moveinout: 100,
+        base_construction: 120,
+        rate_per_room: 15,
+        rate_per_bathroom: 20,
+        rate_per_sqft: 0.5,
+        addon_fridge: 10,
+        addon_oven: 10,
+        addon_windows: 10,
+        addon_carpet: 10,
+        addon_balcony: 10,
+        addon_laundry: 10,
+        addon_bedlinen: 10,
+        addon_furniture: 10,
+        discount_weekly: 15,
+        discount_biweekly: 10,
+        discount_monthly: 5,
+    });
 
     // Form state
     let cleaningType = $state("Standard Cleaning");
@@ -46,25 +74,54 @@
     let contactMessage = $state("");
     let emailQuote = $state(false);
 
-    // Calculate total
+    // Load pricing from PocketBase
+    async function loadPricing() {
+        try {
+            const settingsMap = await getCalculatorSettingsMap();
+            if (Object.keys(settingsMap).length > 0) {
+                pricing = { ...pricing, ...settingsMap };
+            }
+        } catch (error) {
+            console.error("Error loading pricing:", error);
+            // Keep using default values
+        } finally {
+            isPricingLoaded = true;
+        }
+    }
+
+    onMount(() => {
+        loadPricing();
+    });
+
+    // Calculate total using dynamic pricing
     const basePrice = $derived(() => {
-        let base = 50;
-        if (cleaningType === "Deep Cleaning") base = 80;
-        if (cleaningType === "Move In/Out") base = 100;
+        // Get base price based on cleaning type
+        let base = pricing.base_standard;
+        if (cleaningType === "Deep Cleaning") base = pricing.base_deep;
+        if (cleaningType === "Move In/Out") base = pricing.base_moveinout;
+        if (cleaningType === "Post-Construction")
+            base = pricing.base_construction;
 
         // Add room costs
-        base += roomNumber * 15;
-        base += bathroomNumber * 20;
-        base += squareFootage * 0.5;
+        base += roomNumber * pricing.rate_per_room;
+        base += bathroomNumber * pricing.rate_per_bathroom;
+        base += squareFootage * pricing.rate_per_sqft;
 
-        // Add-ons ($10 each)
-        const addOnCount = Object.values(addOns).filter(Boolean).length;
-        base += addOnCount * 10;
+        // Add-ons with individual pricing
+        if (addOns.fridge) base += pricing.addon_fridge;
+        if (addOns.oven) base += pricing.addon_oven;
+        if (addOns.windows) base += pricing.addon_windows;
+        if (addOns.carpet) base += pricing.addon_carpet;
+        if (addOns.balcony) base += pricing.addon_balcony;
+        if (addOns.laundry) base += pricing.addon_laundry;
+        if (addOns.bedLinen) base += pricing.addon_bedlinen;
+        if (addOns.furniture) base += pricing.addon_furniture;
 
         // Frequency discount
-        if (frequency === "Weekly") base *= 0.85;
-        if (frequency === "Bi-weekly") base *= 0.9;
-        if (frequency === "Monthly") base *= 0.95;
+        if (frequency === "Weekly") base *= 1 - pricing.discount_weekly / 100;
+        if (frequency === "Bi-weekly")
+            base *= 1 - pricing.discount_biweekly / 100;
+        if (frequency === "Monthly") base *= 1 - pricing.discount_monthly / 100;
 
         return Math.round(base);
     });
@@ -78,7 +135,33 @@
     }
 
     function handleSubmit() {
-        alert("Quote submitted! We'll contact you soon.");
+        // Add quote to cart
+        cart.setQuote({
+            cleaningType,
+            packageType,
+            homeType,
+            squareFootage,
+            roomNumber,
+            bathroomNumber,
+            addons: {
+                windowCleaning: addOns.windows,
+                carpetCleaning: addOns.carpet,
+                appliances: addOns.oven,
+                laundry: addOns.laundry,
+                organization: addOns.furniture,
+                fridgeCleaning: addOns.fridge,
+            },
+            preferredDate,
+            preferredTime,
+            hasPets,
+            specialInstructions: contactMessage,
+            address: contactAddress,
+            estimatedPrice: basePrice(),
+        });
+
+        // Add to cart and go to checkout
+        cart.addToCart();
+        goto("/checkout");
     }
 
     // Dropdown options

@@ -1,9 +1,13 @@
 /**
  * Company Contact Information
- * Centralized configuration for all contact details used across the app
+ * Uses data from server-side load (fetched from PocketBase)
+ * Falls back to hardcoded defaults if data not available
  */
 
+import { getContext, setContext } from 'svelte';
+
 export interface Location {
+    id?: string;
     name: string;
     city: string;
     province: string;
@@ -13,6 +17,8 @@ export interface Location {
     phone: string;
     email: string;
     isPrimary?: boolean;
+    sortOrder?: number;
+    isActive?: boolean;
 }
 
 export interface CompanyInfo {
@@ -37,12 +43,13 @@ export interface CompanyInfo {
     locations: Location[];
 }
 
-export const companyInfo: CompanyInfo = {
+// Default values (fallback if database unavailable)
+export const defaultCompanyInfo: CompanyInfo = {
     name: "Noble Jade Janitorial Services",
     shortName: "NJJS",
     tagline: "Professional Cleaning Services You Can Trust",
     email: "info@noblejade.ca",
-    phone: "+1 (416) 555-0123",
+    phone: "+1 (416) 555-01233",
     tollFree: "1-800-555-JADE",
     website: "https://noblejade.ca",
     socialLinks: {
@@ -67,43 +74,21 @@ export const companyInfo: CompanyInfo = {
             phone: "+1 (416) 555-0123",
             email: "toronto@noblejade.ca",
             isPrimary: true
-        },
-        {
-            name: "Vancouver Office",
-            city: "Vancouver",
-            province: "BC",
-            address: "456 Granville Street, Unit 200",
-            postalCode: "V6C 1T2",
-            country: "Canada",
-            phone: "+1 (604) 555-0456",
-            email: "vancouver@noblejade.ca"
-        },
-        {
-            name: "Montreal Office",
-            city: "Montreal",
-            province: "QC",
-            address: "789 Rue Sainte-Catherine O, Bureau 300",
-            postalCode: "H3B 1A2",
-            country: "Canada",
-            phone: "+1 (514) 555-0789",
-            email: "montreal@noblejade.ca"
-        },
-        {
-            name: "Calgary Office",
-            city: "Calgary",
-            province: "AB",
-            address: "101 Stephen Avenue SW, Suite 500",
-            postalCode: "T2P 4J9",
-            country: "Canada",
-            phone: "+1 (403) 555-0321",
-            email: "calgary@noblejade.ca"
         }
     ]
 };
 
+// For backward compatibility - this will be overwritten by page data
+export let companyInfo: CompanyInfo = defaultCompanyInfo;
+
+// Set company info from page data (called from +layout.svelte)
+export function setCompanyInfo(data: CompanyInfo) {
+    companyInfo = data;
+}
+
 // Helper to get primary location
 export const getPrimaryLocation = (): Location => {
-    return companyInfo.locations.find(loc => loc.isPrimary) || companyInfo.locations[0];
+    return companyInfo.locations.find(loc => loc.isPrimary) || companyInfo.locations[0] || defaultCompanyInfo.locations[0];
 };
 
 // Helper to format phone for tel: links

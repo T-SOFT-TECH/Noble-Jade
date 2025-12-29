@@ -1,89 +1,88 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import PageHero from "$lib/components/shared/PageHero.svelte";
+    import {
+        getBlogPosts,
+        getBlogCategories,
+        getBlogImageUrl,
+        type BlogPost,
+        type BlogCategory,
+    } from "$lib/services/content";
 
-    // Blog posts data
-    const posts = [
+    let posts = $state<BlogPost[]>([]);
+    let categories = $state<BlogCategory[]>([]);
+    let recentPosts = $state<BlogPost[]>([]);
+    let isLoading = $state(true);
+    let searchQuery = $state("");
+
+    // Default posts as fallback
+    const defaultPosts: BlogPost[] = [
         {
-            id: 1,
+            id: "1",
             slug: "5-signs-its-time-to-hire-a-professional-cleaning-service",
             title: "5 Signs It's Time to Hire a Professional Cleaning Service",
-            author: "Noble Jade Team",
-            date: "July 20, 2025",
-            categories: ["DIY", "Guides"],
             excerpt:
-                "Taking seamless key performance indicators offline to maximise the long tail. Keeping your eye on the ball while performing a deep dive. Proactively envisioned multimedia based expertise and cross-media growth strategies.",
-            image: "/wp-content/uploads/sites/3/2018/09/post_01.jpg",
-        },
-        {
-            id: 2,
-            slug: "the-ultimate-guide-to-a-spotless-home-room-by-room-tips",
-            title: "The Ultimate Guide to a Spotless Home: Room-by-Room Tips",
-            author: "Noble Jade Team",
-            date: "July 10, 2025",
-            categories: ["Cleaning", "Services"],
-            excerpt:
-                "Holistically pontificate installed base portals after maintainable products. Phosfluorescently engage worldwide methodologies with technology. Efficiently unleash cross-media information without cross-media value.",
-            image: "/wp-content/uploads/sites/3/2022/03/post_12.jpg",
-        },
-        {
-            id: 3,
-            slug: "how-to-maintain-a-clean-office-that-boosts-productivity",
-            title: "How to Maintain a Clean Office That Boosts Productivity",
-            author: "Noble Jade Team",
-            date: "June 30, 2025",
-            categories: ["Guides", "Organising"],
-            excerpt:
-                "Collaboratively administrate empowered markets via plug-and-play networks. Dynamically procrastinate B2C users after installed base benefits. Dramatically visualize customer directed convergence without revolutionary ROI.",
-            image: "/wp-content/uploads/sites/3/2022/03/post_11.jpg",
-        },
-        {
-            id: 4,
-            slug: "deep-cleaning-vs-regular-cleaning-whats-the-difference",
-            title: "Deep Cleaning vs. Regular Cleaning: What's the Difference?",
-            author: "Noble Jade Team",
-            date: "June 20, 2025",
-            categories: ["Guides", "Tips & Tricks"],
-            excerpt:
-                "Bespoke la croix portland tacos pork belly hot chicken scenester umami cliche vape poutine. PBR&B pickled wayfarers tilde. Wayfarers biodiesel helvetica yr meh.",
-            image: "/wp-content/uploads/sites/3/2018/09/post_02.jpg",
-        },
-        {
-            id: 5,
-            slug: "what-to-expect-during-your-first-cleaning-appointment",
-            title: "What to Expect During Your First Cleaning Appointment",
-            author: "Noble Jade Team",
-            date: "June 1, 2025",
-            categories: ["Cleaning", "Services"],
-            excerpt:
-                "Holistically pontificate installed base portals after maintainable products. Phosfluorescently engage worldwide methodologies with technology. Holisticly predominate extensible testing procedures for reliable supply chains.",
-            image: "/wp-content/uploads/sites/3/2018/09/post_03.jpg",
-        },
-        {
-            id: 6,
-            slug: "top-5-cleaning-mistakes-you-might-be-making",
-            title: "Top 5 Cleaning Mistakes You Might Be Making",
-            author: "Noble Jade Team",
-            date: "May 25, 2025",
-            categories: ["Business", "Organising"],
-            excerpt:
-                "Collaboratively administrate turnkey channels whereas virtual e-tailers. Objectively seize scalable metrics whereas proactive e-services. Holistically pontificate installed base portals after maintainable products.",
-            image: "/wp-content/uploads/sites/3/2018/09/post_04.jpg",
+                "Taking seamless key performance indicators offline to maximise the long tail.",
+            image: "",
+            publishedAt: "2025-07-20",
+            isPublished: true,
+            isFeatured: false,
+            views: 0,
         },
     ];
 
-    const recentPosts = posts.slice(0, 4);
-
-    const categories = [
-        { name: "Business", count: 2 },
-        { name: "Cleaning", count: 3 },
-        { name: "DIY", count: 3 },
-        { name: "Guides", count: 5 },
-        { name: "Organising", count: 3 },
-        { name: "Services", count: 4 },
-        { name: "Tips & Tricks", count: 3 },
+    const defaultCategories: BlogCategory[] = [
+        { id: "1", name: "Cleaning", slug: "cleaning", sortOrder: 1 },
+        { id: "2", name: "Guides", slug: "guides", sortOrder: 2 },
+        { id: "3", name: "Tips & Tricks", slug: "tips-tricks", sortOrder: 3 },
     ];
 
-    let searchQuery = "";
+    onMount(async () => {
+        try {
+            // Fetch blog posts
+            const result = await getBlogPosts(1, 10);
+            posts = result.items.length > 0 ? result.items : defaultPosts;
+            recentPosts = posts.slice(0, 4);
+
+            // Fetch categories
+            const cats = await getBlogCategories();
+            categories = cats.length > 0 ? cats : defaultCategories;
+
+            console.log(
+                "[Blog] Loaded",
+                posts.length,
+                "posts and",
+                categories.length,
+                "categories",
+            );
+        } catch (error) {
+            console.error("[Blog] Error loading blog data:", error);
+            posts = defaultPosts;
+            recentPosts = posts.slice(0, 4);
+            categories = defaultCategories;
+        } finally {
+            isLoading = false;
+        }
+    });
+
+    // Format date
+    function formatDate(dateStr?: string): string {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    }
+
+    // Get post image URL
+    function getPostImage(post: BlogPost): string {
+        if (post.image) {
+            return getBlogImageUrl(post);
+        }
+        return `/wp-content/uploads/sites/3/2018/09/post_0${(posts.indexOf(post) % 4) + 1}.jpg`;
+    }
 </script>
 
 <svelte:head>
@@ -121,32 +120,34 @@
                         <article class="blog-card">
                             <div class="card-image">
                                 <a href="/blog/{post.slug}">
-                                    <img src={post.image} alt={post.title} />
+                                    <img
+                                        src={getPostImage(post)}
+                                        alt={post.title}
+                                    />
                                 </a>
                             </div>
                             <div class="card-content">
                                 <header class="card-header">
-                                    <span class="author">{post.author}</span>
+                                    <span class="author"
+                                        >{post.author ||
+                                            "Noble Jade Team"}</span
+                                    >
                                     <h2>
                                         <a href="/blog/{post.slug}"
                                             >{post.title}</a
                                         >
                                     </h2>
                                     <div class="meta">
-                                        <span class="date">{post.date}</span>
-                                        <span class="categories">
-                                            {#each post.categories as cat, i}
-                                                <a
-                                                    href="/blog/category/{cat
-                                                        .toLowerCase()
-                                                        .replace(' & ', '-')
-                                                        .replace(' ', '-')}"
-                                                    >{cat}</a
-                                                >{i < post.categories.length - 1
-                                                    ? ", "
-                                                    : ""}
-                                            {/each}
-                                        </span>
+                                        <span class="date"
+                                            >{formatDate(
+                                                post.publishedAt,
+                                            )}</span
+                                        >
+                                        {#if post.tags && post.tags.length > 0}
+                                            <span class="categories">
+                                                {post.tags.join(", ")}
+                                            </span>
+                                        {/if}
                                     </div>
                                 </header>
                                 <p class="excerpt">{post.excerpt}</p>
@@ -313,12 +314,14 @@
                                 <li>
                                     <a href="/blog/{post.slug}">
                                         <img
-                                            src={post.image}
+                                            src={getPostImage(post)}
                                             alt={post.title}
                                         />
                                         <div class="post-info">
                                             <span class="post-date"
-                                                >{post.date}</span
+                                                >{formatDate(
+                                                    post.publishedAt,
+                                                )}</span
                                             >
                                             <h5>{post.title}</h5>
                                         </div>

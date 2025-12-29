@@ -3,12 +3,29 @@
 	import favicon from "$lib/assets/favicon.svg";
 	import { onMount } from "svelte";
 	import { onNavigate } from "$app/navigation";
+	import { page } from "$app/stores";
 	import { theme } from "$lib/stores/theme";
 	import { auth } from "$lib/stores/auth";
+	import { setCompanyInfo } from "$lib/config/company";
 	import Header from "$lib/components/shared/Header.svelte";
 	import Footer from "$lib/components/shared/Footer.svelte";
+	import Toast from "$lib/components/shared/Toast.svelte";
 
-	let { children } = $props();
+	let { children, data } = $props();
+
+	// Set company info from server data
+	$effect(() => {
+		if (data?.companyInfo) {
+			setCompanyInfo(data.companyInfo);
+		}
+	});
+
+	// Check if current route is dashboard, staff portal, or admin (hide header/footer)
+	let isPortal = $derived(
+		$page.url.pathname.startsWith("/dashboard") ||
+			$page.url.pathname.startsWith("/staff") ||
+			$page.url.pathname.startsWith("/admin"),
+	);
 
 	onMount(() => {
 		theme.initialize();
@@ -54,9 +71,19 @@
 </svelte:head>
 
 <div class="font-sans antialiased">
-	<Header />
-	<main class="flex flex-col gap-16 max-w-[1800px] mx-auto main-content">
+	{#if !isPortal}
+		<Header />
+	{/if}
+	<main
+		class="flex flex-col gap-16 mx-auto main-content"
+		class:max-w-[1800px]={!isPortal}
+	>
 		{@render children()}
 	</main>
-	<Footer />
+	{#if !isPortal}
+		<Footer />
+	{/if}
 </div>
+
+<!-- Global Toast Notifications -->
+<Toast />

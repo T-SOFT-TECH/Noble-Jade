@@ -147,3 +147,17 @@ export const auth = createAuthStore();
 export const isAuthenticated = derived(auth, $auth => $auth.isAuthenticated);
 export const currentUser = derived(auth, $auth => $auth.user);
 export const isLoading = derived(auth, $auth => $auth.isLoading);
+export const userRole = derived(auth, $auth => $auth.user?.role || 'customer');
+
+// Helper function to get dashboard URL based on role
+export function getDashboardUrl(role?: string): string {
+    switch (role) {
+        case 'admin':
+            return '/admin';
+        case 'staff':
+            return '/staff';
+        case 'customer':
+        default:
+            return '/dashboard';
+    }
+}

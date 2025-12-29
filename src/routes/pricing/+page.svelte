@@ -1,17 +1,28 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import ServicesHero from "$lib/components/services/ServicesHero.svelte";
     import FAQSection from "$lib/components/home/FAQSection.svelte";
+    import {
+        getPricingPackages,
+        type PricingPackage,
+    } from "$lib/services/content";
 
-    // Pricing packages data
-    const packages = [
+    // Pricing packages - will be loaded from database
+    let packages = $state<PricingPackage[]>([]);
+    let isLoading = $state(true);
+
+    // Default packages as fallback
+    const defaultPackages: PricingPackage[] = [
         {
+            id: "1",
             label: "BASIC PACKAGE",
             name: "Fresh Start",
             description: "Light maintenance, small apartments, regular upkeep",
             price: 90,
             priceNote: "Per visit (up to 2 bed / 1 bath)",
             isPopular: false,
-            includes: "What's included:",
+            isActive: true,
+            sortOrder: 1,
             features: [
                 "Dusting all surfaces",
                 "Vacuuming & mopping floors",
@@ -21,13 +32,15 @@
             ],
         },
         {
+            id: "2",
             label: "STANDARD PACKAGE",
             name: "Comfort Clean",
             description: "Families, regular home care, busy professionals",
             price: 130,
-            priceNote: "Per visit (up to 2 bed / 1 bath)",
+            priceNote: "Per visit (up to 3 bed / 2 bath)",
             isPopular: true,
-            includes: "Includes everything in Basic, plus:",
+            isActive: true,
+            sortOrder: 2,
             features: [
                 "Make beds/change linens",
                 "Inside microwave",
@@ -37,13 +50,15 @@
             ],
         },
         {
+            id: "3",
             label: "PREMIUM PACKAGE",
             name: "Deep Refresh",
             description: "Seasonal deep clean, first-time clients, post-event",
             price: 180,
-            priceNote: "Per visit (up to 2 bed / 1 bath)",
+            priceNote: "Per visit (up to 3 bed / 2 bath)",
             isPopular: false,
-            includes: "Includes everything in Standard, plus:",
+            isActive: true,
+            sortOrder: 3,
             features: [
                 "Inside oven & fridge",
                 "Inside cabinets",
@@ -53,6 +68,30 @@
             ],
         },
     ];
+
+    onMount(async () => {
+        try {
+            const data = await getPricingPackages();
+            packages = data.length > 0 ? data : defaultPackages;
+            console.log(
+                "[Pricing Page] Loaded",
+                packages.length,
+                "packages from database",
+            );
+        } catch (error) {
+            console.error("[Pricing Page] Error loading packages:", error);
+            packages = defaultPackages;
+        } finally {
+            isLoading = false;
+        }
+    });
+
+    // Get "includes" text based on package index
+    function getIncludesText(index: number): string {
+        if (index === 0) return "What's included:";
+        if (index === 1) return "Includes everything in Basic, plus:";
+        return "Includes everything in Standard, plus:";
+    }
 
     // Tab data for price list
     let activeTab = 0;
@@ -228,7 +267,7 @@
             </div>
 
             <div class="packages-grid">
-                {#each packages as pkg}
+                {#each packages as pkg, index}
                     <div class="package-card" class:popular={pkg.isPopular}>
                         {#if pkg.isPopular}
                             <div class="popular-badge">Most Popular</div>
@@ -248,7 +287,9 @@
                         >
                             Continue
                         </a>
-                        <span class="includes-text">{pkg.includes}</span>
+                        <span class="includes-text"
+                            >{getIncludesText(index)}</span
+                        >
                         <ul class="features-list">
                             {#each pkg.features as feature}
                                 <li>{feature}</li>

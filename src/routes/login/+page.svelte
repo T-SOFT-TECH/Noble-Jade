@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { auth } from "$lib/stores/auth";
+    import { auth, getDashboardUrl } from "$lib/stores/auth";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import PageHero from "$lib/components/shared/PageHero.svelte";
@@ -13,8 +13,9 @@
     onMount(() => {
         auth.init();
         const unsubscribe = auth.subscribe((state) => {
-            if (state.isAuthenticated) {
-                goto("/dashboard");
+            if (state.isAuthenticated && state.user) {
+                // Redirect based on user role
+                goto(getDashboardUrl(state.user.role));
             }
         });
         return unsubscribe;
@@ -28,7 +29,20 @@
         const result = await auth.login(email, password);
 
         if (result.success) {
-            goto("/dashboard");
+            // Small delay to ensure auth state is updated, then redirect
+            setTimeout(() => {
+                let currentState: any;
+                const unsub = auth.subscribe((state) => {
+                    currentState = state;
+                });
+                unsub();
+
+                if (currentState?.user) {
+                    goto(getDashboardUrl(currentState.user.role));
+                } else {
+                    goto("/dashboard");
+                }
+            }, 100);
         } else {
             error = result.error || "Login failed";
         }
