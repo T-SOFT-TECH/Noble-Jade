@@ -1,15 +1,16 @@
 // Root layout server load - fetch company info for all pages
 import type { LayoutServerLoad } from './$types';
+import { POCKETBASE_URL } from '$env/static/private';
 
-// Always use localhost for server-side fetch since it runs on the same machine
-const POCKETBASE_URL = 'http://127.0.0.1:8090';
+// Use environment variable or fallback to localhost for development
+const pocketbaseUrl = POCKETBASE_URL || 'http://127.0.0.1:8090';
 
 export const load: LayoutServerLoad = async ({ fetch }) => {
     try {
-        console.log('[+layout.server.ts] Fetching settings from:', `${POCKETBASE_URL}/api/collections/settings/records`);
+        console.log('[+layout.server.ts] Fetching settings from:', `${pocketbaseUrl}/api/collections/settings/records`);
 
         // Fetch settings
-        const settingsRes = await fetch(`${POCKETBASE_URL}/api/collections/settings/records?perPage=100`);
+        const settingsRes = await fetch(`${pocketbaseUrl}/api/collections/settings/records?perPage=100`);
 
         if (!settingsRes.ok) {
             console.error('[+layout.server.ts] Settings fetch failed:', settingsRes.status, settingsRes.statusText);
@@ -27,7 +28,7 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
         }
 
         // Fetch locations
-        const locationsRes = await fetch(`${POCKETBASE_URL}/api/collections/locations/records?filter=(isActive=true)&sort=sortOrder`);
+        const locationsRes = await fetch(`${pocketbaseUrl}/api/collections/locations/records?filter=(isActive=true)&sort=sortOrder`);
 
         if (!locationsRes.ok) {
             console.error('[+layout.server.ts] Locations fetch failed:', locationsRes.status, locationsRes.statusText);
