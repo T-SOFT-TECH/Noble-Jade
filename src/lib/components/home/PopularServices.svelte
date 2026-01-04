@@ -125,11 +125,11 @@
 {/snippet}
 
 <!-- Popular Services Section -->
-<section class="py-20 bg-theme-background">
+<section class="py-12 md:py-20 bg-theme-background">
     <div class="container mx-auto px-4 max-w-6xl">
         <!-- Header -->
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-theme-dark">
+        <div class="text-center mb-10 md:mb-16">
+            <h2 class="text-3xl md:text-5xl font-bold text-theme-dark">
                 Popular Services
             </h2>
         </div>
@@ -141,7 +141,7 @@
                 <img
                     src="/wp-content/uploads/sites/3/2025/07/image_01_home_01.jpg"
                     alt="Move In/Out Cleaning"
-                    class="w-full h-[500px] object-cover rounded-3xl"
+                    class="w-full h-[300px] md:h-[500px] object-cover rounded-3xl"
                 />
                 <div class="shrink-0">
                     <ServiceCardLeft
@@ -168,7 +168,7 @@
                 <img
                     src="/wp-content/uploads/sites/3/2025/07/image_05_home_01.jpg"
                     alt="Home Cleaning"
-                    class="w-full h-[500px] object-cover rounded-3xl"
+                    class="w-full h-[300px] md:h-[500px] object-cover rounded-3xl"
                 />
             </div>
 
@@ -177,7 +177,7 @@
                 <img
                     src="/wp-content/uploads/sites/3/2025/07/image_04_home_01.jpg"
                     alt="Office Cleaning"
-                    class="w-full h-[500px] object-cover rounded-3xl"
+                    class="w-full h-[300px] md:h-[500px] object-cover rounded-3xl"
                 />
                 <div class="shrink-0">
                     <ServiceCard

@@ -25,17 +25,17 @@
     ];
 </script>
 
-<section class="py-24 bg-theme-background">
+<section class="py-12 md:py-24 bg-theme-background">
     <div class="container mx-auto px-4 max-w-6xl">
         <!-- Header -->
-        <div class="text-center mb-16">
+        <div class="text-center mb-10 md:mb-16">
             <h5
                 class="text-accent uppercase tracking-widest font-medium text-sm mb-4 font-sans"
             >
                 Your satisfaction is our priority
             </h5>
             <h2
-                class="text-4xl md:text-[42px] font-medium text-theme-dark font-heading leading-tight"
+                class="text-3xl md:text-[42px] font-medium text-theme-dark font-heading leading-tight"
             >
                 Experience The Magic Of Qleen
             </h2>
@@ -43,7 +43,7 @@
 
         <!-- Content: 4-column grid -->
         <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 items-start"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10 items-start"
         >
             <!-- Features: Each takes 1 column (total 2 columns for 4 features in 2x2) -->
             {#each features as feature}

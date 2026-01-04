@@ -507,4 +507,16 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
+
+    @media (max-width: 640px) {
+        .danger-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .danger-item button {
+            width: 100%;
+        }
+    }
 </style>

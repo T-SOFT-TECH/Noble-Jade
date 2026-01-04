@@ -61,6 +61,7 @@
 
     // Calculate visible slides based on screen width
     let slidesToShow = $state(3);
+    let containerWidth = $state(0);
 
     function updateSlidesToShow() {
         if (typeof window !== "undefined") {
@@ -84,9 +85,13 @@
 
     // Get the transform offset for current position
     function getTransformOffset(): string {
-        const slideWidth = 100 / slidesToShow;
-        const offset = -(trackIndex * slideWidth) + dragOffset;
-        return `translateX(${offset}%)`;
+        if (!containerWidth) return "translateX(0px)";
+        const gap = 24; // 1.5rem = 24px
+        const totalGapWidth = (slidesToShow - 1) * gap;
+        const slideWidth = (containerWidth - totalGapWidth) / slidesToShow;
+        const moveAmount = slideWidth + gap;
+        const offset = -(trackIndex * moveAmount) + dragOffset;
+        return `translateX(${offset}px)`;
     }
 
     function nextSlide() {
@@ -141,7 +146,6 @@
         e.preventDefault();
 
         const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-        const containerWidth = trackRef?.parentElement?.offsetWidth || 1;
         const diff = clientX - startX;
 
         // Calculate velocity
@@ -153,8 +157,8 @@
         lastDragX = clientX;
         lastDragTime = now;
 
-        // Convert pixel offset to percentage
-        dragOffset = (diff / containerWidth) * 100;
+        // Use pixel difference directly
+        dragOffset = diff;
     }
 
     function handleDragEnd() {
@@ -165,7 +169,11 @@
             trackRef.style.transition = "";
         }
 
-        const slideWidth = 100 / slidesToShow;
+        const gap = 24;
+        const totalGapWidth = (slidesToShow - 1) * gap;
+        const slideWidth = (containerWidth - totalGapWidth) / slidesToShow;
+        
+        // Threshold to snap to next slide (e.g. 15% of slide width)
         const threshold = slideWidth * 0.15;
         const velocityThreshold = 0.3;
 
@@ -199,6 +207,7 @@
         <!-- Carousel wrapper -->
         <div
             class="carousel-wrapper"
+            bind:clientWidth={containerWidth}
             onmousedown={handleDragStart}
             onmousemove={handleDragMove}
             onmouseup={handleDragEnd}
@@ -357,7 +366,7 @@
     }
 
     .testimonial-card {
-        flex: 0 0 calc((100% - 3rem) / var(--slides-to-show));
+        flex: 0 0 calc((100% - (var(--slides-to-show) - 1) * 1.5rem) / var(--slides-to-show));
         min-width: 0;
         background: white;
         border-radius: 20px;

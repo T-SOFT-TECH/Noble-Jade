@@ -9,6 +9,7 @@
     let isLoading = $state(true);
     let sidebarCollapsed = $state(false);
     let isDarkMode = $state(true);
+    let isSidebarOpen = $state(false);
 
     // Route protection - redirect if not admin
     onMount(() => {
@@ -35,6 +36,14 @@
     function handleLogout() {
         auth.logout();
         goto("/");
+    }
+
+    function toggleSidebar() {
+        isSidebarOpen = !isSidebarOpen;
+    }
+
+    function closeSidebar() {
+        isSidebarOpen = false;
     }
 
     function toggleTheme() {
@@ -112,10 +121,22 @@
     </div>
 {:else if $isAuthenticated && $currentUser?.role === "admin"}
     <div class="admin-layout" class:collapsed={sidebarCollapsed}>
+        <!-- Mobile Sidebar Overlay -->
+        {#if isSidebarOpen}
+            <div
+                class="sidebar-overlay"
+                onclick={closeSidebar}
+                onkeydown={(e) => e.key === 'Escape' && closeSidebar()}
+                role="button"
+                tabindex="0"
+                aria-label="Close sidebar"
+            ></div>
+        {/if}
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" class:open={isSidebarOpen}>
             <div class="sidebar-header">
-                <a href="/admin" class="logo">
+                <a href="/admin" class="logo" onclick={closeSidebar}>
                     <img
                         src="/images/noble-jade-logo-2.webp"
                         alt="Noble Jade"
@@ -123,6 +144,9 @@
                     />
                 </a>
                 <span class="admin-badge">Admin</span>
+                <button class="close-sidebar-btn lg:hidden" onclick={closeSidebar} aria-label="Close menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
 
             <nav class="sidebar-nav">
@@ -131,6 +155,7 @@
                         href={link.href}
                         class="sidebar-link"
                         class:active={isActive(link.href)}
+                        onclick={closeSidebar}
                     >
                         {#if link.icon === "dashboard"}
                             <svg
@@ -428,8 +453,26 @@
             <header class="top-header">
                 <div class="header-left">
                     <button
-                        class="menu-toggle"
+                        class="menu-toggle desktop-toggle"
                         onclick={() => (sidebarCollapsed = !sidebarCollapsed)}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                    </button>
+                    <button
+                        class="menu-toggle mobile-toggle"
+                        onclick={toggleSidebar}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -619,8 +662,18 @@
         padding: 1.5rem;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 1rem;
         border-bottom: 1px solid var(--border-color);
+    }
+
+    .close-sidebar-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.5rem;
+        display: none; /* Hidden on desktop */
     }
 
     .logo {
@@ -630,6 +683,21 @@
 
     .logo-img {
         height: 36px;
+    }
+
+    /* Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 45; /* Below sidebar (50) but above everything else */
+        animation: fade-in 0.2s ease-out;
+    }
+
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     .admin-badge {
@@ -761,6 +829,14 @@
         background: var(--glass-bg);
     }
 
+    .desktop-toggle {
+        display: block;
+    }
+
+    .mobile-toggle {
+        display: none;
+    }
+
     .search-box {
         display: flex;
         align-items: center;
@@ -888,10 +964,15 @@
     @media (max-width: 1024px) {
         .sidebar {
             transform: translateX(-100%);
+            left: 0; /* Reset position for mobile */
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
         }
 
         .admin-layout:not(.collapsed) .sidebar {
-            transform: translateX(0);
+            transform: translateX(-100%); /* Default hidden on mobile unless open class is present */
         }
 
         .main-content {
@@ -899,6 +980,22 @@
         }
 
         .search-box {
+            display: none;
+        }
+
+        .desktop-toggle {
+            display: none;
+        }
+
+        .mobile-toggle {
+            display: block;
+        }
+
+        .close-sidebar-btn {
+            display: block;
+        }
+        
+        .user-details {
             display: none;
         }
     }

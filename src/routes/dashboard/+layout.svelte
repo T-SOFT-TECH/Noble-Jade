@@ -10,6 +10,7 @@
     let { children } = $props();
     let isLoading = $state(true);
     let isDarkMode = $state(true);
+    let isSidebarOpen = $state(false);
 
     // Route protection - redirect to login if not authenticated
     onMount(() => {
@@ -27,6 +28,14 @@
     function handleLogout() {
         auth.logout();
         goto("/");
+    }
+
+    function toggleSidebar() {
+        isSidebarOpen = !isSidebarOpen;
+    }
+
+    function closeSidebar() {
+        isSidebarOpen = false;
     }
 
     function toggleTheme() {
@@ -89,16 +98,31 @@
     </div>
 {:else if $isAuthenticated && $currentUser}
     <div class="dashboard-layout">
+        <!-- Mobile Sidebar Overlay -->
+        {#if isSidebarOpen}
+            <div
+                class="sidebar-overlay"
+                onclick={closeSidebar}
+                onkeydown={(e) => e.key === 'Escape' && closeSidebar()}
+                role="button"
+                tabindex="0"
+                aria-label="Close sidebar"
+            ></div>
+        {/if}
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" class:open={isSidebarOpen}>
             <div class="sidebar-header">
-                <a href="/" class="logo">
+                <a href="/" class="logo" onclick={closeSidebar}>
                     <img
                         src="/images/noble-jade-logo-2.webp"
                         alt="Noble Jade"
                         class="h-10"
                     />
                 </a>
+                <button class="close-sidebar-btn lg:hidden" onclick={closeSidebar} aria-label="Close menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
 
             <nav class="sidebar-nav">
@@ -107,6 +131,7 @@
                         href={link.href}
                         class="sidebar-link"
                         class:active={$page?.url?.pathname === link.href}
+                        onclick={closeSidebar}
                     >
                         {#if link.icon === "home"}
                             <svg
@@ -259,6 +284,9 @@
             <!-- Top Bar -->
             <header class="dashboard-header">
                 <div class="header-left">
+                    <button class="menu-toggle-btn lg:hidden" onclick={toggleSidebar} aria-label="Toggle menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
                     <h1 class="page-title">
                         Welcome back, {$currentUser.name?.split(" ")[0] ||
                             "User"}!
@@ -412,171 +440,59 @@
 
     .sidebar-header {
         margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .close-sidebar-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        padding: 0.5rem;
     }
 
     .sidebar-header .logo img {
         filter: brightness(0) invert(1);
     }
 
-    .sidebar-nav {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+    /* Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 90;
+        animation: fade-in 0.2s ease-out;
     }
 
-    .sidebar-link {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.875rem 1rem;
-        border-radius: 12px;
-        color: rgba(255, 255, 255, 0.7);
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.2s ease;
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
-    .sidebar-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    .sidebar-link.active {
-        background: #e82374;
-        color: white;
-    }
-
-    .sidebar-footer {
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .logout-btn {
+    .header-left {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.875rem 1rem;
-        border-radius: 12px;
-        color: rgba(255, 255, 255, 0.7);
+        gap: 1rem;
+    }
+
+    .menu-toggle-btn {
         background: none;
         border: none;
-        width: 100%;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .logout-btn:hover {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-    }
-
-    /* Main Content */
-    .dashboard-main {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .dashboard-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.5rem 2rem;
-        background: var(--bg-secondary);
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .page-title {
-        font-size: 1.5rem;
-        font-weight: 600;
         color: var(--text-primary);
-    }
-
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-    }
-
-    .theme-toggle-btn {
+        cursor: pointer;
         padding: 0.5rem;
-        background: var(--glass-bg);
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-        cursor: pointer;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .theme-toggle-btn:hover {
-        color: #e82374;
-        border-color: #e82374;
-        background: var(--glass-bg-hover);
-    }
-
-    .back-to-site {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-size: 0.875rem;
-        transition: all 0.2s ease;
-    }
-
-    .back-to-site:hover {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #e82374;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 0.875rem;
-    }
-
-    .user-details {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .user-name {
-        font-weight: 500;
-        color: var(--text-primary);
-        font-size: 0.875rem;
-    }
-
-    .user-email {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-    }
-
-    .dashboard-content {
-        flex: 1;
-        padding: 2rem;
+        display: none;
     }
 
     /* Mobile Responsive */
     @media (max-width: 1024px) {
+        .menu-toggle-btn {
+            display: flex;
+        }
+        
         .dashboard-layout {
             grid-template-columns: 1fr;
         }

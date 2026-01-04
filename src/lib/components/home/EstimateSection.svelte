@@ -62,7 +62,7 @@
             </div>
 
             <!-- Center Column - Form Card -->
-            <div class="pt-32 pb-16 px-4 xl:px-0">
+            <div class="pt-16 xl:pt-32 pb-16 px-4 xl:px-0">
                 <div class="form-card max-w-lg mx-auto">
                     <!-- Title -->
                     <div class="text-center mb-6">

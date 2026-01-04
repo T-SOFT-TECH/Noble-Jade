@@ -569,6 +569,9 @@
         .stats-grid {
             grid-template-columns: 1fr;
         }
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
     }
 
     /* Loading State */

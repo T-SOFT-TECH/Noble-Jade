@@ -186,7 +186,7 @@
 
                     <!-- Slide Content -->
                     <div
-                        class="slide-content relative z-10 min-h-[85vh] flex flex-col"
+                        class="slide-content relative z-10 min-h-[80vh] md:min-h-[85vh] flex flex-col"
                     >
                         <!-- Floating Decorative Images -->
                         {#if index === selectedIndex}
@@ -235,7 +235,7 @@
                         <!-- Large Heading -->
                         {#key selectedIndex}
                             <h1
-                                class="absolute inset-0 flex items-center justify-center text-[14vw] md:text-[16vw] lg:text-[18vw] font-semibold text-white/15 text-center leading-[0.85] z-10 pointer-events-none {index ===
+                                class="absolute inset-0 flex items-center justify-center text-[12vw] md:text-[16vw] lg:text-[18vw] font-semibold text-white/15 text-center leading-[0.85] z-10 pointer-events-none {index ===
                                 selectedIndex
                                     ? 'title-animate'
                                     : ''}"

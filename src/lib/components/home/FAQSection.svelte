@@ -117,6 +117,12 @@
         background: var(--bg-primary, #f8f8f8);
     }
 
+    @media (max-width: 768px) {
+        .faq-section {
+            padding: 3rem 1rem;
+        }
+    }
+
     .faq-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -252,14 +258,27 @@
         }
 
         .faq-title {
-            font-size: 1.75rem;
+            font-size: 2.25rem;
         }
 
         .accordion-header {
             padding: 1rem 1.25rem;
+            font-size: 1.1rem;
+        }
+
+        .accordion-toggle {
+            font-size: 1.5rem;
+        }
+
+        .accordion-body p {
+            font-size: 1rem;
         }
 
         .accordion-body {
+            padding: 0 1.25rem; 
+        }
+
+        .accordion-body.is-open {
             padding: 0 1.25rem 1rem 1.25rem;
         }
     }

@@ -92,14 +92,14 @@
     }
 </script>
 
-<section class="py-20 bg-theme-secondary w-full mx-auto rounded-[40px]">
+<section class="py-12 md:py-20 bg-theme-secondary w-full mx-auto rounded-[40px]">
     <div class="container mx-auto px-4">
         <!-- Header -->
         <div class="text-center mb-8">
             <p class="text-accent uppercase tracking-wider mb-2">
                 What we offer
             </p>
-            <h2 class="text-4xl md:text-6xl text-theme-primary py-6">
+            <h2 class="text-3xl md:text-6xl text-theme-primary py-6">
                 Choose One Of Our Packages
             </h2>
         </div>

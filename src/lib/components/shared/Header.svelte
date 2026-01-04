@@ -640,11 +640,14 @@
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.1);
+
     }
 
     .nav-container.scrolled {
-        background: rgba(10, 10, 20, 0.95);
+        background: rgba(10, 10, 20, 0.8);
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
     }
 
     /* Nav links - always light on dark bg */
@@ -733,10 +736,10 @@
     }
 
     .mobile-nav-item {
-        font-size: 1.75rem;
+        font-size: 1.25rem;
         font-weight: 500;
         color: rgba(255, 255, 255, 0.8);
-        padding: 0.75rem 0;
+        padding: 0.6rem 0;
         text-decoration: none;
         transition:
             color 0.2s ease,
@@ -786,9 +789,10 @@
 
     .mobile-login {
         color: white;
+        font-size: 0.9rem;
         font-weight: 500;
         text-decoration: none;
-        padding: 0.75rem 1.5rem;
+        padding: 0.6rem 1.2rem;
         border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 50px;
         transition: all 0.2s ease;
@@ -801,9 +805,10 @@
     .mobile-cta {
         background: #e82374;
         color: white;
+        font-size: 0.9rem;
         font-weight: 600;
         text-decoration: none;
-        padding: 0.75rem 1.5rem;
+        padding: 0.6rem 1.2rem;
         border-radius: 50px;
         transition: all 0.2s ease;
     }

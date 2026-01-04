@@ -130,6 +130,12 @@
         background: var(--bg-primary);
     }
 
+    @media (max-width: 640px) {
+        .form-section {
+            padding: 2rem 1rem;
+        }
+    }
+
     .form-wrapper {
         max-width: 500px;
         margin: 0 auto;

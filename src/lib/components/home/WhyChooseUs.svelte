@@ -1,12 +1,12 @@
 <!-- Why Choose Us Section -->
-<section class="py-20 bg-theme-primary">
+<section class="py-12 md:py-20 bg-theme-primary">
     <div class="container mx-auto px-4">
         <!-- Header -->
-        <div class="text-center mb-16 w-2xl mx-auto tracking-widest">
-            <p class="text-accent font-medium uppercase tracking-wider mb-2">
+        <div class="text-center mb-10 md:mb-16 max-w-2xl mx-auto md:tracking-widest">
+            <p class="text-accent font-medium uppercase tracking-widest mb-2">
                 Why Choose Us
             </p>
-            <h2 class="text-4xl md:text-5xl font-bold text-theme-primary">
+            <h2 class="text-3xl md:text-5xl font-bold text-theme-primary leading-tight">
                 Cleaning Services You Can Count On
             </h2>
         </div>
